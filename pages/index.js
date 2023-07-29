@@ -1,15 +1,20 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import Layout from "@/components/layout";
+import {useSession} from "next-auth/react";
 
 export default function Home() {
-  return (
-    <div className='bg-red-900 w-screen h-screen flex items-center'>
-      <div className='text-center w-full'>
-        <button className='bg-white p-2 rounded'>Login with Google</button>
+  const {data: session} = useSession();
+  if(!session) return;
+  return <Layout>
+    <div className="text-red-900 flex justify-between">
+      <h2>
+      Hello, <b> {session?.user?.name}</b>
+      </h2>
+      <div className="flex bg-gray-300 gap-1 text-black rounded-lg overflow-hidden">
+        <img src={session?.user?.image} alt="" className="w-6 h-6"/>
+        <span className="px-2">
+          {session?.user?.name}
+        </span>
       </div>
     </div>
-
-  )
+  </Layout>
 }
