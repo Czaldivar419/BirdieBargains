@@ -2,6 +2,7 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import multiparty from "multiparty";
 import fs from "fs";
 import mime from "mime-types";
+import { isAdminRequest } from "./auth/[...nextauth]";
 const bucketName = "birdiebargains";
 
 export default async function handle(req,res) {

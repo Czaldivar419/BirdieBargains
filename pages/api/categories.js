@@ -1,5 +1,7 @@
 import { mongooseConnect } from "@/lib/mongoose";
 import { Category } from "@/models/Category";
+import { getServerSession } from "next-auth";
+import { authOptions, isAdminRequest } from "../api/auth/[...nextauth]";
 
 export default async function handle(req, res) {
     const {method} = req;
