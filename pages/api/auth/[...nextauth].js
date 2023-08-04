@@ -5,7 +5,7 @@ import clientPromise from '@/lib/mongodb';
 
 const adminEmails = [process.env.ADMIN_EMAIL];
 
-export default NextAuth({
+const authOptions = {
   providers: [
     GoogleProvider({
     clientId: process.env.GOOGLE_ID,
@@ -13,4 +13,22 @@ export default NextAuth({
   }),
   ],
   adapter: MongoDBAdapter(clientPromise),
-})
+  callbacks: {
+    session: ({session, token, user}) => {
+      if (adminEmails.includes(session?.user?.email)) {
+        return session;
+      } else {
+        return false;
+      }
+    },
+  },
+};
+
+export default NextAuth(authOptions);
+
+export async function isAdminRequest(req, res) {
+  const session = await getServerSession(req, res, authOptions);
+  if (!adminEmails.includes(session?.user?.email)) {
+    throw "Unauthorized request";
+  }
+}
