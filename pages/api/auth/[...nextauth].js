@@ -4,7 +4,7 @@ import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 
 const adminEmails = process.env.ADMIN_EMAIL;
-const secretKey = process.env.SECRET_KEY;
+const secretKey = process.env.NEXTAUTH_SECRET;
 
 export const authOptions = {
   secret: secretKey,
