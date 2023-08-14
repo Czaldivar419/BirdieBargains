@@ -1,33 +1,38 @@
-import NextAuth, { getServerSession } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import { MongoDBAdapter } from '@auth/mongodb-adapter';
-import clientPromise from '@/lib/mongodb';
-import crypto from 'crypto';
+import NextAuth, {getServerSession} from 'next-auth'
+import GoogleProvider from 'next-auth/providers/google'
+import {MongoDBAdapter} from "@next-auth/mongodb-adapter";
+import clientPromise from "@/lib/mongodb";
 
-const adminEmails = [process.env.ADMIN_EMAIL];
+const adminEmails = process.env.ADMIN_EMAIL;
+const secretKey = process.env.SECRET_KEY;
 
-const secret = crypto.randomBytes(64).toString('hex');
-
-const authOptions = {
-  secret: secret,
+export const authOptions = {
+  secret: secretKey,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-      redirect_uri: 'https://birdie-bargains-admin/api/auth/callback/google',
+      clientSecret: process.env.GOOGLE_SECRET
     }),
   ],
   adapter: MongoDBAdapter(clientPromise),
   callbacks: {
-    // ...
+    session: ({session,token,user}) => {
+      if (adminEmails.includes(session?.user?.email)) {
+        return session;
+      } else {
+        return false;
+      }
+    },
   },
 };
 
 export default NextAuth(authOptions);
 
-export async function isAdminRequest(req, res) {
-  const session = await getServerSession({ req, res }, authOptions);
+export async function isAdminRequest(req,res) {
+  const session = await getServerSession(req,res,authOptions);
   if (!adminEmails.includes(session?.user?.email)) {
-    throw "Unauthorized request";
+    res.status(401);
+    res.end();
+    throw 'not an admin';
   }
 }
